@@ -1,7 +1,7 @@
 /**
  * KeyBoardTest.java 2020年9月28日
  */
-package com.mytest.test;
+package com.mytest.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import java.util.Scanner;
  * @author zengwk
  * @version $Id$
  */
-public class DigitalConversionTest {
+public class DigitalConversion {
 
 	private static Map<String, List<String>> digitsMap = null;
 	
@@ -42,47 +42,62 @@ public class DigitalConversionTest {
 	 * 数字转换输出
 	 */
 	public static void digitsToLetters() {
-		System.out.println("请输入0-9的数字：");
 		//输入按键数字1-9
 		Scanner scan = new Scanner(System.in);
 		String digits = "";
+		boolean flag = false;
 		while (true) {
+
+			System.out.print("\n请输入0-9的数字：");
 			digits = scan.next();
 			if (!digits.matches("[0-9]{1,2}")) {
-				System.out.println("只能输入0-99的数字！请重新输入：");
+				flag = false;
+				System.out.println("只能输入0-99的数字！\n");
 			} else {
-				break;
+				flag = true;
 			}
-		}
-		StringBuilder arrInput = new StringBuilder("Input:arr[] ={");
-		String[] arrStr = digits.split("");
-		List<String[]> dataList = new ArrayList<String[]>();
+			if (flag) {
+				StringBuilder arrInput = new StringBuilder("Input:arr[] ={");
+				String[] arrStr = digits.split("");
+				List<String[]> dataList = new ArrayList<String[]>();
 
-		for (int i = 0; i < arrStr.length; i++) {
-			arrInput.append(arrStr[i]);
-			if (i < arrStr.length - 1) {
-				arrInput.append(",");
+				for (int i = 0; i < arrStr.length; i++) {
+					arrInput.append(arrStr[i]);
+					if (i < arrStr.length - 1) {
+						arrInput.append(",");
+					}
+					//先将多个list中的数据都添加到同一个集合中作为数据源
+					List<String> lettersList = digitsMap.get(arrStr[i]);
+					if (lettersList.size() > 0) {//没有数据的集合不能强行转换为数组
+						String[] letterArr = (String[]) lettersList.toArray();
+						dataList.add(letterArr);
+					}
+				}
+				arrInput.append("}");
+				//递归实现多数组排列组合，并返回最终的排列集合
+				List<String[]> resultList = makeupLetters(dataList, 0, null);
+				//打印输入内容
+				System.out.println(arrInput.toString());
+				System.out.print("Output:");
+				//打印输出排列组合结果 
+				for (int i = 0; i < resultList.size(); i++) {
+					String[] letterArr = resultList.get(i);
+					System.out.print(" ");
+					for (String s : letterArr) {
+						System.out.print(s.toLowerCase());
+					}
+				}
+				System.out.println();
+
+				System.out.print("\n是否继续（y/n）：");
+				String isOk = scan.next();
+				if (!"y".equals(isOk)) {
+					System.out.println("测试已退出！");
+					break;
+				}
+
 			}
-			//先将多个list中的数据都添加到同一个集合中作为数据源
-			List<String> lettersList = digitsMap.get(arrStr[i]);
-			if (lettersList.size() > 0) {//没有数据的集合不能强行转换为数组
-				String[] letterArr = (String[]) lettersList.toArray();
-				dataList.add(letterArr);
-			}
-		}
-		arrInput.append("}");
-		//递归实现多数组排列组合，并返回最终的排列集合
-		List<String[]> resultList = makeupLetters(dataList, 0, null);
-		//打印输入内容
-		System.out.println(arrInput.toString());
-		System.out.print("Output:");
-		//打印输出排列组合结果 
-		for (int i = 0; i < resultList.size(); i++) {
-			String[] letterArr = resultList.get(i);
-			System.out.print(" ");
-			for (String s : letterArr) {
-				System.out.print(s.toLowerCase());
-			}
+
 		}
 	}
 
@@ -118,15 +133,6 @@ public class DigitalConversionTest {
 			}
 		}
 		return makeupLetters(dataList, ++index, resultList0);
-	}
-
-
-	/**
-	 * 运行
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		DigitalConversionTest.digitsToLetters();
 	}
 
 }
